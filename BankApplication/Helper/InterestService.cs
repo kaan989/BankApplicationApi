@@ -56,7 +56,7 @@ namespace BankApplication.Helper
             // Basit faiz hesaplama (örneğin, yıllık faiz oranı)
             // Örnek olarak yıllık faiz oranı kullanılmıştır
             var annualInterest = balance * (rate / 100);
-            return annualInterest / 12; // Aylık faiz
+            return annualInterest ; // Aylık faiz
         }
     }
 }

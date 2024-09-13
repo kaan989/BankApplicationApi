@@ -12,6 +12,9 @@ namespace BankApplication.Helper
             CreateMap<AccountDto, Account>();
             CreateMap<TransactionMoneyDto, TransactionMoney>();
             CreateMap<TransactionMoney, TransactionMoneyDto>();
+            CreateMap<AccountApplicationDto, AccountApplication>();
+            CreateMap<AccountApplication, AccountApplicationDto>();
+   
         }
     }
 }

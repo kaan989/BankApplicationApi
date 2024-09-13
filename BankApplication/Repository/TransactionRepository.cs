@@ -57,6 +57,16 @@ namespace BankApplication.Repository
             return Save();
         }
 
+        public Account GetAccountById(int accountId)
+        {
+            return _context.Accounts.Find(accountId);
+        }
+
+        public Account GetAccountByNumber(string accountNumber)
+        {
+            return _context.Accounts.Include(a => a.AppUser).FirstOrDefault(a => a.AccountNumber == accountNumber);
+        }
+
         public ICollection<TransactionMoney> GetAll()
         {
             return _context.Transactions.OrderBy(a => a.Id).ToList();

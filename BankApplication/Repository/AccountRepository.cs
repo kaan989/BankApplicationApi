@@ -42,6 +42,11 @@ namespace BankApplication.Repository
             return _context.Accounts.Include(a => a.AppUser).OrderBy(a=> a.Id).ToList();
         }
 
+        public ICollection<Account> GetAllAccountsByUserId(string userId)
+        {
+            return _context.Accounts.Include(a => a.AppUser).Where(a => a.AppUserId == userId).ToList();
+        }
+
         public Task<Account> GetById(int id)
         {
             return _context.Accounts.Include(a =>a.AppUser).FirstOrDefaultAsync(a => a.Id == id);

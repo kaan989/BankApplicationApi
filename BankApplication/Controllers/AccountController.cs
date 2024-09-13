@@ -32,6 +32,22 @@ namespace BankApplication.Controllers
             return Ok(accounts);
         }
 
+
+
+        [HttpGet("user/{userid}")]
+        [ProducesResponseType(200, Type = typeof(AccountDto))]
+        [ProducesResponseType(400)]
+        public IActionResult GetAllAcountByUserId(string userid)
+        {
+            var accounts = _mapper.Map<List<AccountDto>>(_accountRepository.GetAllAccountsByUserId(userid));
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            return Ok(accounts);
+        }
+
+
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(AccountDto))]
         [ProducesResponseType(400)]
@@ -121,7 +137,7 @@ namespace BankApplication.Controllers
             // Ülke kodu ve kontrol rakamı sabit
             string countryCode = "TR";
             string checkDigits = "00"; // Kontrol rakamı genelde banka tarafından hesaplanır
-            string bankCode = "12345"; // Örnek olarak bankaya özel bir kod (gerçek bankalarda farklı olabilir)
+            string bankCode = "22"; // Örnek olarak bankaya özel bir kod (gerçek bankalarda farklı olabilir)
 
             // 16 haneli rastgele hesap numarası üret
             string accountNumber = GenerateRandomNumber(16);
@@ -141,5 +157,7 @@ namespace BankApplication.Controllers
             return new string(result);
         }
     }
+
+
 
 }

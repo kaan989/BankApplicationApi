@@ -14,6 +14,7 @@ namespace BankApplication.Data
         public DbSet<Account> Accounts { get; set; }
         public DbSet<InterestRate> InterestRates { get; set; }
         public DbSet<TransactionMoney> Transactions { get; set; }
+        public DbSet<AccountApplication> Applications { get; set; }
 
 
     }

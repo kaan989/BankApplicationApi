@@ -1,7 +1,9 @@
-﻿using BankApplication.Dto;
+﻿using BankApplication.Data.Enum;
+using BankApplication.Dto;
 using BankApplication.IRepository;
 using BankApplication.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Transactions;
 
 namespace BankApplication.Controllers
 {
@@ -81,5 +83,73 @@ namespace BankApplication.Controllers
 
             return Ok();
         }
+
+        [HttpPost("transfer")]
+        public IActionResult Transfer([FromBody] TransferDto transferDto)
+        {
+            if (transferDto == null || transferDto.Amount <= 0)
+            {
+                return BadRequest("Invalid transfer details.");
+            }
+
+            using (var scope = new TransactionScope())
+            {
+                // Çekim yapılan hesap
+                var fromAccount = _transactionRepository.GetAccountById(transferDto.FromAccountId);
+                if (fromAccount == null || fromAccount.Balance < transferDto.Amount)
+                {
+                    return BadRequest("Insufficient balance or account not found.");
+                }
+
+                // Yatırma yapılan hesap
+                var toAccount = _transactionRepository.GetAccountByNumber(transferDto.ToAccountNumber);
+                if (toAccount == null)
+                {
+                    return BadRequest("Destination account not found.");
+                }
+
+                // Çekim işlemi (Withdraw)
+                var withdrawTransaction = new TransactionMoney
+                {
+                    Amount = transferDto.Amount,
+                    TransactionDate = DateTime.UtcNow,
+                    Type = TransactionType.Withdraw,
+                    AccountId = transferDto.FromAccountId
+                };
+                
+
+                // Yatırma işlemi (Deposit)
+                var depositTransaction = new TransactionMoney
+                {
+                    Amount = transferDto.Amount,
+                    TransactionDate = DateTime.UtcNow,
+                    Type = TransactionType.Deposit,
+                    AccountId = toAccount.Id
+                };
+                
+
+                try
+                {
+                    // Veritabanına işlemleri kaydet
+                    if (!_transactionRepository.AddTransaction(withdrawTransaction, fromAccount.Id) ||
+                        !_transactionRepository.AddTransaction(depositTransaction, toAccount.Id))
+                    {
+                        throw new Exception("Error processing transfer.");
+                    }
+
+                    // Eğer her şey yolundaysa transaction'ı tamamla
+                    scope.Complete();
+
+                    return Ok(new { Message = "Transfer successful", FromAccount = fromAccount, ToAccount = toAccount });
+                }
+                catch (Exception ex)
+                {
+                    // Hata durumunda tüm işlemleri geri al
+                    return StatusCode(500, "Transfer failed: " + ex.Message);
+                }
+            }
+        }
     }
+
+
 }
